@@ -33,18 +33,18 @@ public class Plugin : Plugin<Config>
 
 #if EXILED
     /// <inheritdoc />
-    public override Version RequiredExiledVersion => new(9, 9, 2);
+    public override Version RequiredExiledVersion => new(9, 13, 1);
 
 #else
         /// <inheritdoc />
-    public override Version RequiredApiVersion => new(1, 1, 2);
+    public override Version RequiredApiVersion => new(1, 1, 5);
 
         /// <inheritdoc />
     public override string Description => "Plugin that allows you to use your keycards without the need of having them on your hand all the time";
 #endif
 
     /// <inheritdoc />
-    public override Version Version => new(3, 4, 0);
+    public override Version Version => new(3, 4, 1);
 
     /// <inheritdoc cref="EventHandlers" />
     private EventHandlers? Handler { get; set; }

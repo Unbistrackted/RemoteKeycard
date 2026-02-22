@@ -2,13 +2,13 @@
 
 #if EXILED
 using Exiled.API.Features;
+using Exiled.API.Features.Items;
 #else
 using LabApi.Features.Wrappers;
 #endif
 using CustomPlayerEffects;
 using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Keycards;
-using LabApi.Features.Console;
 
 /// <inheritdoc />
 public static class Extensions
