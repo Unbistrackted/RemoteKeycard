@@ -12,16 +12,18 @@ using System;
 public class Plugin : Plugin<Config>
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="Plugin" /> class.
-    ///     Instance initializer.
+    /// Initializes a new instance of the <see cref="Plugin" /> class.
     /// </summary>
     public Plugin()
     {
         Instance = this;
     }
 
+    /// <inheritdoc cref="EventHandlers" />
+    private EventHandlers? Handler;
+
     /// <summary>
-    ///     Gets a static instance of this class.
+    /// Gets a static instance of this class.
     /// </summary>
     public static Plugin? Instance { get; private set; }
 
@@ -36,18 +38,15 @@ public class Plugin : Plugin<Config>
     public override Version RequiredExiledVersion => new(9, 13, 1);
 
 #else
-        /// <inheritdoc />
-    public override Version RequiredApiVersion => new(1, 1, 5);
+    /// <inheritdoc />
+    public override Version RequiredApiVersion { get; } = new(LabApi.Features.LabApiProperties.CompiledVersion);
 
-        /// <inheritdoc />
+    /// <inheritdoc />
     public override string Description => "Plugin that allows you to use your keycards without the need of having them on your hand all the time";
 #endif
 
     /// <inheritdoc />
-    public override Version Version => new(3, 4, 1);
-
-    /// <inheritdoc cref="EventHandlers" />
-    private EventHandlers? Handler { get; set; }
+    public override Version Version => new(3, 4, 2);
 
     /// <inheritdoc />
 #if EXILED
@@ -56,9 +55,7 @@ public class Plugin : Plugin<Config>
     public override void Enable()
 #endif
     {
-        Handler = new EventHandlers(Config);
-        Handler.Start();
-
+        Handler = new();
 #if EXILED
         base.OnEnabled();
 #endif
@@ -71,9 +68,7 @@ public class Plugin : Plugin<Config>
     public override void Disable()
 #endif
     {
-        Handler?.Stop();
         Handler = null;
-
 #if EXILED
         base.OnDisabled();
 #endif

@@ -9,30 +9,22 @@ using PlayerInteractingDoorEventArgs = Exiled.Events.EventArgs.Player.Interactin
 #else
 using LabApi.Events.Handlers;
 using LabApi.Events.Arguments.PlayerEvents;
-using System.Linq;
 #endif
 using System;
 using MapGeneration.Distributors;
 using Log = LabApi.Features.Console.Logger;
 
-/// <inheritdoc />
+/// <summary>
+/// Provides methods to register and unregister event handlers for all keycards interactions, enabling custom behavior based on configuration settings.
+/// </summary>
 public class EventHandlers
 {
-    private readonly Config _config;
+    private static Config Config => Plugin.Instance.Config;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="EventHandlers" /> class.
+    /// Registers all events used.
     /// </summary>
-    /// <param name="config">The <see cref="Config" /> settings that will be used.</param>
-    public EventHandlers(Config config)
-    {
-        this._config = config;
-    }
-
-    /// <summary>
-    ///     Registers all events used.
-    /// </summary>
-    public void Start()
+    public EventHandlers()
     {
         PlayerEvents.InteractingDoor += OnDoorInteract;
         PlayerEvents.UnlockingGenerator += OnGeneratorUnlock;
@@ -45,9 +37,9 @@ public class EventHandlers
     }
 
     /// <summary>
-    ///     Unregisters all events used.
+    /// Unregisters all events used.
     /// </summary>
-    public void Stop()
+    ~EventHandlers()
     {
         PlayerEvents.InteractingDoor -= OnDoorInteract;
         PlayerEvents.UnlockingGenerator -= OnGeneratorUnlock;
@@ -64,24 +56,24 @@ public class EventHandlers
         Log.Debug("Door Interact Event", Plugin.Instance.Config.Debug);
         try
         {
-            if (!_config.AffectDoors)
+            if (!Config.AffectDoors || ev.Player == null)
                 return;
 
 #if EXILED
-            if (!ev.IsAllowed && ev.Player.HasKeycardPermission(ev.Door.Base) && !ev.Door.IsLocked)
+            if (!ev.IsAllowed && ev.Player.HasKeycardPermission(ev.Door?.Base) && !ev.Door.IsLocked)
                 ev.IsAllowed = true;
 
-            Log.Debug($"Allowed: {ev.IsAllowed}, Permission?: {ev.Player.HasKeycardPermission(ev.Door.Base)}, Current Item: ${ev.Player.CurrentItem}", Plugin.Instance.Config.Debug);
+            Log.Debug($"Allowed: {ev.IsAllowed}, Permission?: {ev.Player.HasKeycardPermission(ev.Door?.Base)}, Current Item: ${ev.Player.CurrentItem}", Plugin.Instance.Config.Debug);
 #else
-            if (!ev.CanOpen && ev.Player.HasKeycardPermission(ev.Door.Base) && !ev.Door.IsLocked)
+            if (!ev.CanOpen && ev.Player.HasKeycardPermission(ev.Door?.Base) && !ev.Door.IsLocked)
                 ev.CanOpen = true;
 
-            Log.Debug($"Allowed: {ev.CanOpen}, Permission?: {ev.Player.HasKeycardPermission(ev.Door.Base)}, Current Item: ${ev.Player.CurrentItem}", Plugin.Instance.Config.Debug);
+            Log.Debug($"Allowed: {ev.CanOpen}, Permission?: {ev.Player.HasKeycardPermission(ev.Door?.Base)}, Current Item: ${ev.Player.CurrentItem}", Plugin.Instance.Config.Debug);
 #endif
         }
         catch (Exception e)
         {
-            if (_config.ShowExceptions)
+            if (Config.ShowExceptions)
                 Log.Warn($"{nameof(OnDoorInteract)}: {e.Message}\n{e.StackTrace}");
         }
     }
@@ -91,24 +83,24 @@ public class EventHandlers
         Log.Debug("Generator Unlock Event", Plugin.Instance.Config.Debug);
         try
         {
-            if (!_config.AffectGenerators)
+            if (!Config.AffectGenerators || ev.Player == null)
                 return;
             
 #if EXILED
-            if (!ev.IsAllowed && ev.Player.HasKeycardPermission(ev.Generator.Base))
+            if (!ev.IsAllowed && ev.Player.HasKeycardPermission(ev.Generator?.Base))
                 ev.IsAllowed = true;
 
-            Log.Debug($"Allowed: {ev.IsAllowed}, Permission?: {ev.Player.HasKeycardPermission(ev.Generator.Base)}", Plugin.Instance.Config.Debug);
+            Log.Debug($"Allowed: {ev.IsAllowed}, Permission?: {ev.Player.HasKeycardPermission(ev.Generator?.Base)}", Plugin.Instance.Config.Debug);
 #else
-            if (!ev.CanOpen && ev.Player.HasKeycardPermission(ev.Generator.Base))
+            if (!ev.CanOpen && ev.Player.HasKeycardPermission(ev.Generator?.Base))
                 ev.CanOpen = true;
 
-            Log.Debug($"Allowed: {ev.CanOpen}, Permission?: {ev.Player.HasKeycardPermission(ev.Generator.Base)}", Plugin.Instance.Config.Debug);
+            Log.Debug($"Allowed: {ev.CanOpen}, Permission?: {ev.Player.HasKeycardPermission(ev.Generator?.Base)}", Plugin.Instance.Config.Debug);
 #endif
         }
         catch (Exception e)
         {
-            if (_config.ShowExceptions)
+            if (Config.ShowExceptions)
                 Log.Warn($"{nameof(OnGeneratorUnlock)}: {e.Message}\n{e.StackTrace}");
         }
     }
@@ -118,19 +110,19 @@ public class EventHandlers
         Log.Debug("Locker Interact Event", Plugin.Instance.Config.Debug);
         try
         {
-            if (!_config.AffectScpLockers)
+            if (!Config.AffectScpLockers || ev.Player == null)
                 return;
 #if EXILED
             LockerChamber locker = ev.InteractingChamber?.Base;
 
-            if (!ev.IsAllowed && locker != null && ev.Player.HasKeycardPermission(locker))
+            if (!ev.IsAllowed && ev.Player.HasKeycardPermission(locker))
                 ev.IsAllowed = true;
 
             Log.Debug($"Allowed: {ev.IsAllowed}, Permission?: {ev.Player.HasKeycardPermission(locker)}", Plugin.Instance.Config.Debug);
 #else
             LockerChamber locker = ev.Chamber?.Base;
 
-            if (!ev.CanOpen && locker != null && ev.Player.HasKeycardPermission(locker))
+            if (!ev.CanOpen && ev.Player.HasKeycardPermission(locker))
                 ev.CanOpen = true;
 
             Log.Debug($"Allowed: {ev.CanOpen}, Permission?: {ev.Player.HasKeycardPermission(locker)}", Plugin.Instance.Config.Debug);
@@ -139,7 +131,7 @@ public class EventHandlers
         }
         catch (Exception e)
         {
-            if (_config.ShowExceptions)
+            if (Config.ShowExceptions)
                 Log.Warn($"{nameof(OnLockerInteract)}: {e.Message}\n{e.StackTrace}");
         }
     }
@@ -149,7 +141,7 @@ public class EventHandlers
         Log.Debug("Warhead Unlock Event", Plugin.Instance.Config.Debug);
         try
         {
-            if (!_config.AffectWarheadPanel)
+            if (!Config.AffectWarheadPanel || ev.Player == null)
                 return;
 
             Log.Debug($"Allowed: {ev.IsAllowed}, Permission?: {ev.Player.HasKeycardPermission(AlphaWarheadActivationPanel.Instance)}", Plugin.Instance.Config.Debug);
@@ -159,7 +151,7 @@ public class EventHandlers
         }
         catch (Exception e)
         {
-            if (_config.ShowExceptions)
+            if (Config.ShowExceptions)
                 Log.Warn($"{nameof(OnWarheadUnlock)}: {e.Message}\n{e.StackTrace}");
         }
     }

@@ -4,7 +4,7 @@
 		<TargetFramework>net48</TargetFramework>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Authors>Beryl</Authors>
-		<Version>3.4.1</Version>
+		<Version>3.4.2</Version>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>

@@ -14,7 +14,7 @@ using InventorySystem.Items.Keycards;
 public static class Extensions
 {
     /// <summary>
-    ///     Checks whether the player has a keycard of a specific permission.
+    /// Checks whether the player has a keycard of a specific permission.
     /// </summary>
     /// <param name="player"><see cref="Player" /> trying to interact.</param>
     /// <param name="requester">The permission that's gonna be searched for.</param>
@@ -29,7 +29,12 @@ public static class Extensions
 #endif 
             return false;
 
-        foreach (Item item in player.Items)
+        if (requester == null)
+            return false;
+
+        var items = player.Items;
+
+        foreach (Item item in items)
         {
             if (item.Base is not IDoorPermissionProvider provider)
                 continue;
